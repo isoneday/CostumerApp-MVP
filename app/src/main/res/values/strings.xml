@@ -19,5 +19,6 @@
     <string name="login">login</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_makanan">MakananActivity</string>
+    <string name="titlelogin">login</string>
 
 </resources>

@@ -8,7 +8,7 @@ import com.imastudio.costumerappojol.base.BaseView;
 public interface AuthContract {
 
     interface Presenter extends BasePresenter {
-         void prosesLogin();
+         void prosesLogin(String email, String password, String device, DialogInterface dialogInterface);
          void prosesRegister(String email, String password, String nama, String phone, DialogInterface dialogInterface);
     }
     interface View extends BaseView<BasePresenter> {
@@ -17,7 +17,6 @@ public interface AuthContract {
          void showError(String localizedMessage);
          void showMsg(String msg);
          void pindahHalaman();
-
 
     }
 }

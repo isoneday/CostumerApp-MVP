@@ -3,7 +3,7 @@ package com.imastudio.costumerappojol.auth;
 import android.content.DialogInterface;
 
 import com.imastudio.costumerappojol.base.BaseView;
-import com.imastudio.costumerappojol.model.ResponseRegister;
+import com.imastudio.costumerappojol.model.ResponseAuth;
 import com.imastudio.costumerappojol.network.InitRetrofit;
 
 import retrofit2.Call;
@@ -19,7 +19,33 @@ public class AuthPresenter implements  AuthContract.Presenter {
     }
 
     @Override
-    public void prosesLogin() {
+    public void prosesLogin(String email, String password, String device, DialogInterface dialogInterface) {
+        authview.showLoading("Login");
+        InitRetrofit.getInstance().
+                loginUser(password,email,device).enqueue(new Callback<ResponseAuth>() {
+            @Override
+            public void onResponse(Call<ResponseAuth> call, Response<ResponseAuth> response) {
+                authview.hideLoading();
+                if (response.isSuccessful()){
+                    String msg = response.body().getMsg();
+                    String result = response.body().getResult();
+                    if (result.equals("true")){
+                        authview.showMsg(msg);
+                        dialogInterface.dismiss();
+                        authview.pindahHalaman();
+                    }else{
+                        authview.showMsg(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseAuth> call, Throwable t) {
+                authview.showError(t.getLocalizedMessage());
+                authview.hideLoading();
+            }
+        });
+
 
     }
 
@@ -28,9 +54,9 @@ public class AuthPresenter implements  AuthContract.Presenter {
         authview.showLoading("Register");
         InitRetrofit.getInstance().
                 registerUser(nama,phone,
-                        password,email).enqueue(new Callback<ResponseRegister>() {
+                        password,email).enqueue(new Callback<ResponseAuth>() {
             @Override
-            public void onResponse(Call<ResponseRegister> call, Response<ResponseRegister> response) {
+            public void onResponse(Call<ResponseAuth> call, Response<ResponseAuth> response) {
                 authview.hideLoading();
                 if (response.isSuccessful()){
                     String msg = response.body().getMsg();
@@ -40,13 +66,12 @@ public class AuthPresenter implements  AuthContract.Presenter {
                         dialogInterface.dismiss();
                     }else{
                         authview.showMsg(msg);
-
                     }
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseRegister> call, Throwable t) {
+            public void onFailure(Call<ResponseAuth> call, Throwable t) {
                 authview.showError(t.getLocalizedMessage());
                 authview.hideLoading();
             }

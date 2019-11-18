@@ -2,6 +2,7 @@ package com.imastudio.costumerappojol.view;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.imastudio.costumerappojol.MainActivity;
 import com.imastudio.costumerappojol.R;
 import com.imastudio.costumerappojol.auth.AuthContract;
 import com.imastudio.costumerappojol.auth.AuthPresenter;
@@ -90,7 +92,7 @@ public class AuthActivity extends AppCompatActivity implements AuthContract.View
                         } else if (TextUtils.isEmpty(phone)) {
                             holderRegister.edtPhone.setError(getString(R.string.requirephone));
                         } else {
-                            presenter.prosesRegister(email, password, nama, phone,dialogInterface);
+                            presenter.prosesRegister(email, password, nama, phone, dialogInterface);
                         }
                     }
                 });
@@ -103,6 +105,40 @@ public class AuthActivity extends AppCompatActivity implements AuthContract.View
     }
 
     private void login() {
+        LayoutInflater inflater = getLayoutInflater();
+        View v = inflater.inflate(R.layout.layout_login, null, false);
+        final ViewHolderLogin holderRegister = new ViewHolderLogin(v);
+
+        AlertDialog dialogRegis = new AlertDialog.Builder(this)
+                .setView(v)
+                .setTitle(getString(R.string.titlelogin))
+                .setMessage(getString(R.string.messagelogin))
+                .setPositiveButton("Login", null)
+                .setNegativeButton("cancel", null)
+                .create();
+        dialogRegis.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                Button buttonPositive = ((AlertDialog) dialogInterface).getButton(DialogInterface.BUTTON_POSITIVE);
+                buttonPositive.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String email = holderRegister.edtEmail.getText().toString();
+                        String password = holderRegister.edtPassword.getText().toString();
+                        String device= "232323";
+                        if (TextUtils.isEmpty(email)) {
+                            holderRegister.edtEmail.setError(getString(R.string.requireemail));
+                        } else if (TextUtils.isEmpty(password)) {
+                            holderRegister.edtPassword.setError(getString(R.string.requirepassword));
+                        } else {
+                            presenter.prosesLogin(email, password,device, dialogInterface);
+                        }
+                    }
+                });
+            }
+        });
+
+        dialogRegis.show();
 
     }
 
@@ -133,7 +169,8 @@ public class AuthActivity extends AppCompatActivity implements AuthContract.View
 
     @Override
     public void pindahHalaman() {
-
+    startActivity(new Intent(AuthActivity.this, MainActivity.class));
+    finish();
     }
 
     @Override
@@ -170,6 +207,18 @@ public class AuthActivity extends AppCompatActivity implements AuthContract.View
         MaterialEditText edtPhone;
 
         ViewHolderRegister(View view) {
+            ButterKnife.bind(this, view);
+        }
+    }
+
+    static
+    class ViewHolderLogin {
+        @BindView(R.id.edtEmail)
+        MaterialEditText edtEmail;
+        @BindView(R.id.edtPassword)
+        MaterialEditText edtPassword;
+
+        ViewHolderLogin(View view) {
             ButterKnife.bind(this, view);
         }
     }
