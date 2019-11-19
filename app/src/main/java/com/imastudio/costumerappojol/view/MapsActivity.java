@@ -1,6 +1,8 @@
 package com.imastudio.costumerappojol.view;
 
 import android.Manifest;
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -15,8 +17,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -24,9 +29,15 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.libraries.places.compat.AutocompleteFilter;
+import com.google.android.libraries.places.compat.Place;
+import com.google.android.libraries.places.compat.ui.PlaceAutocomplete;
 import com.imastudio.costumerappojol.R;
 import com.imastudio.costumerappojol.base.BaseActivity;
+import com.imastudio.costumerappojol.helper.DirectionMapsV2;
 import com.imastudio.costumerappojol.helper.GPSTracker;
+import com.imastudio.costumerappojol.presenter.map.MapContract;
+import com.imastudio.costumerappojol.presenter.map.MapPresenter;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,9 +47,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.imastudio.costumerappojol.helper.MyContants.LOKASIAWAL;
+import static com.imastudio.costumerappojol.helper.MyContants.LOKASITUJUAN;
 import static com.imastudio.costumerappojol.helper.MyContants.REQUEST_LOCATION;
 
-public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
+public class MapsActivity extends BaseActivity implements OnMapReadyCallback, MapContract.View {
 
     @BindView(R.id.imgpick)
     ImageView imgpick;
@@ -64,6 +77,11 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     private double myLng;
     private LatLng myLatLng;
     private String nameLocation;
+    private double desLat;
+    private double desLng;
+    private String nameDesLocation;
+    MapPresenter presenter;
+    ProgressDialog loading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,14 +94,17 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         mapFragment.getMapAsync(this);
         callPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_LOCATION);
         checkGpsDevice(this);
+        loading = new ProgressDialog(this);
+
+        presenter = new MapPresenter(this);
 
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode==REQUEST_LOCATION&& grantResults[0] ==
-                PackageManager.PERMISSION_GRANTED){
+        if (requestCode == REQUEST_LOCATION && grantResults[0] ==
+                PackageManager.PERMISSION_GRANTED) {
             checkPermissionAndCall();
 
         }
@@ -91,12 +112,11 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
     private void checkPermissionAndCall() {
         if (Build.VERSION.SDK_INT > 22) {
-            if(ContextCompat.checkSelfPermission(this,
+            if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED){
-                requestPermissions( new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-            }
-            else{
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+            } else {
                 getMyLocation();
             }
         }
@@ -107,27 +127,27 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         mMap = googleMap;
         getMyLocation();
 
-     }
+    }
 
     private void getMyLocation() {
         gps = new GPSTracker(this);
 
-        if (gps.canGetLocation()){
+        if (gps.canGetLocation()) {
             myLat = gps.getLatitude();
-            myLng =gps.getLongitude();
-            Toast.makeText(this, "lat :"+myLat+"lon :"+myLng, Toast.LENGTH_SHORT)
+            myLng = gps.getLongitude();
+            Toast.makeText(this, "lat :" + myLat + "lon :" + myLng, Toast.LENGTH_SHORT)
                     .show();
-            addMarker(myLat,myLng);
+            addMarker(myLat, myLng);
             lokasiawal.setText(nameLocation);
         }
     }
 
     private void addMarker(double myLat, double myLng) {
-        myLatLng = new LatLng(myLat,myLng);
-        nameLocation = convertLocation(myLat,myLng);
+        myLatLng = new LatLng(myLat, myLng);
+        nameLocation = convertLocation(myLat, myLng);
         mMap.addMarker(new MarkerOptions().position(myLatLng).title(nameLocation))
                 .setIcon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pickup));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng,18));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, 18));
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -159,11 +179,127 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             case R.id.imgpick:
                 break;
             case R.id.lokasiawal:
+                setLocation(LOKASIAWAL);
                 break;
             case R.id.lokasitujuan:
+                setLocation(LOKASITUJUAN);
                 break;
             case R.id.requestorder:
                 break;
         }
+    }
+
+    private void setLocation(int lokasi) {
+        AutocompleteFilter filter = new AutocompleteFilter.Builder()
+                .setCountry("ID")
+                .build();
+
+        Intent i = null;
+        try {
+            i = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+                    .setFilter(filter)
+                    .build(MapsActivity.this);
+            startActivityForResult(i, lokasi);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        } catch (GooglePlayServicesRepairableException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == LOKASIAWAL && resultCode == RESULT_OK) {
+            Place place = PlaceAutocomplete.getPlace(this, data);
+            myLat = place.getLatLng().latitude;
+            myLng = place.getLatLng().longitude;
+            myLatLng = new LatLng(myLat, myLng);
+            mMap.clear();
+            nameLocation = place.getAddress().toString();
+            mMap.addMarker(new MarkerOptions().position(myLatLng).title(nameLocation))
+                    .setIcon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pickup));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, 17));
+        } else if (requestCode == LOKASITUJUAN && resultCode == RESULT_OK) {
+            Place place = PlaceAutocomplete.getPlace(this, data);
+
+            desLat = place.getLatLng().latitude;
+            desLng = place.getLatLng().longitude;
+            LatLng desLatLng = new LatLng(desLat, desLng);
+            nameDesLocation = place.getAddress().toString();
+            mMap.addMarker(new MarkerOptions().position(desLatLng).title(nameDesLocation))
+                    .setIcon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pickup));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(desLatLng, 17));
+            String key = getString(R.string.google_maps_key);
+            presenter.getDataMap(myLat + "," + myLng, desLat + "," + desLng, key);
+            lokasitujuan.setText(nameDesLocation);
+        }
+    }
+
+    @Override
+    public void showLoading() {
+        loading.setTitle("Proses get data map");
+        loading.setMessage("loading . .. . ");
+        loading.show();
+
+
+    }
+
+    @Override
+    public void hideLoading() {
+        loading.dismiss();
+
+    }
+
+    @Override
+    public void showError(String localizedMessage) {
+        Toast.makeText(this, localizedMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showMsg(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    public void getDataInfoOrder(String durasi, String distanceText, String harga) {
+        txtdurasi.setText(durasi);
+        txtharga.setText(harga);
+        txtjarak.setText(distanceText);
+    }
+
+    @Override
+    public void dataBooking() {
+
+    }
+
+    @Override
+    public void dataGaris(String dataGaris) {
+        DirectionMapsV2 mapsV2 = new DirectionMapsV2(this);
+        mapsV2.gambarRoute(mMap,dataGaris);
+    }
+
+    @Override
+    public void onAttachView() {
+        presenter.onAttach(this);
+
+    }
+
+    @Override
+    public void onDetachView() {
+presenter.onDetach();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        onAttachView();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        onDetachView();
     }
 }

@@ -13,21 +13,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.imastudio.costumerappojol.MainActivity;
 import com.imastudio.costumerappojol.R;
-import com.imastudio.costumerappojol.presenter.auth.AuthContract;
-import com.imastudio.costumerappojol.presenter.auth.AuthPresenter;
+import com.imastudio.costumerappojol.base.BaseActivity;
 import com.imastudio.costumerappojol.helper.SessionManager;
 import com.imastudio.costumerappojol.model.modelauth.ResponseAuth;
+import com.imastudio.costumerappojol.presenter.auth.AuthContract;
+import com.imastudio.costumerappojol.presenter.auth.AuthPresenter;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class AuthActivity extends AppCompatActivity implements AuthContract.View {
+public class AuthActivity extends BaseActivity implements AuthContract.View {
     @BindView(R.id.txt_rider_app)
     TextView txtRiderApp;
     @BindView(R.id.btnSignIn)
@@ -38,7 +38,7 @@ public class AuthActivity extends AppCompatActivity implements AuthContract.View
     RelativeLayout rootlayout;
 
     AuthPresenter presenter;
-    ProgressDialog loading;
+        ProgressDialog loading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -230,5 +230,10 @@ public class AuthActivity extends AppCompatActivity implements AuthContract.View
         ViewHolderLogin(View view) {
             ButterKnife.bind(this, view);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        keluarApps(this,1,"keluar","Apakah anda yakin keluar app");
     }
 }

@@ -2,11 +2,14 @@ package com.imastudio.costumerappojol.network;
 
 
 import com.imastudio.costumerappojol.model.modelauth.ResponseAuth;
+import com.imastudio.costumerappojol.model.modelmap.ResponseMap;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 public interface RestApi {
 
@@ -27,4 +30,12 @@ public interface RestApi {
             @Field("f_email") String stremail,
             @Field("device") String strdevice
     );
+
+    @GET("json")
+    Call<ResponseMap> getDataMap(
+            @Query("origin") String origin,
+            @Query("destination") String destination,
+            @Query("key") String key
+    );
+
 }

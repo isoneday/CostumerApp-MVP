@@ -2,6 +2,8 @@ package com.imastudio.costumerappojol.base;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
@@ -10,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -24,11 +27,14 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.imastudio.costumerappojol.helper.MyContants;
+import com.imastudio.costumerappojol.helper.SessionManager;
+import com.imastudio.costumerappojol.view.AuthActivity;
 
 public class BaseActivity extends AppCompatActivity {
 
 
     private GoogleApiClient googleApiClient;
+    private SessionManager session;
 
     public void callPermission(Context c, String permission, int reqcode) {
         if (ActivityCompat.checkSelfPermission(c,permission) != PackageManager.PERMISSION_GRANTED ) {
@@ -118,4 +124,32 @@ public class BaseActivity extends AppCompatActivity {
 
     }
 
+    public void keluarApps(Context c,int kode,String title,String msg){
+        AlertDialog.Builder builder = new AlertDialog.Builder(c);
+        builder.setTitle(title);
+        builder.setMessage(msg);
+        builder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (kode==1){
+                    System.exit(0);
+
+                }else{
+                    session = new SessionManager(c);
+                    session.logout();
+                    finish();
+                    startActivity(new Intent(c, AuthActivity.class));
+
+                }
+            }
+        });
+        builder.setNegativeButton("no", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
 }

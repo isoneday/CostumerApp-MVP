@@ -28,7 +28,7 @@ public class SplashScreenActivity extends AppCompatActivity implements SplashCon
         setContentView(R.layout.activity_splash_screen);
         ButterKnife.bind(this);
         presenter = new SplashPresenter(this);
-        presenter.delaySplash((long) 5000,lotti1);
+        presenter.delaySplash((long) 5000, lotti1);
         session = new SessionManager(this);
     }
 
@@ -39,7 +39,7 @@ public class SplashScreenActivity extends AppCompatActivity implements SplashCon
 
             Toast.makeText(this, "selamat datang kembali di aplikasi"
                     + getString(R.string.app_name), Toast.LENGTH_SHORT).show();
-        }else{
+        } else {
             Toast.makeText(this, "Hi,selamat datang di aplikasi"
                     + getString(R.string.app_name), Toast.LENGTH_SHORT).show();
 
@@ -48,11 +48,12 @@ public class SplashScreenActivity extends AppCompatActivity implements SplashCon
 
     @Override
     public void pindahHalaman() {
-        if (session.isLogin()){
+        if (session.isLogin()) {
             startActivity(new Intent(this, MainActivity.class));
-        }else{
+            finish();
+        } else {
             startActivity(new Intent(this, AuthActivity.class));
-
+            finish();
         }
     }
 
