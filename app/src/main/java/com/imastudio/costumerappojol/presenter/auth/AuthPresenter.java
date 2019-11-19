@@ -1,4 +1,4 @@
-package com.imastudio.costumerappojol.auth;
+package com.imastudio.costumerappojol.presenter.auth;
 
 import android.content.DialogInterface;
 
@@ -14,6 +14,7 @@ public class AuthPresenter implements  AuthContract.Presenter {
 
     AuthContract.View authview;
     BaseView view;
+
     public AuthPresenter(AuthContract.View view) {
         this.authview = view;
     }
@@ -29,10 +30,11 @@ public class AuthPresenter implements  AuthContract.Presenter {
                 if (response.isSuccessful()){
                     String msg = response.body().getMsg();
                     String result = response.body().getResult();
+                    ResponseAuth dataUser = response.body();
                     if (result.equals("true")){
                         authview.showMsg(msg);
                         dialogInterface.dismiss();
-                        authview.pindahHalaman();
+                        authview.pindahHalaman(dataUser);
                     }else{
                         authview.showMsg(msg);
                     }

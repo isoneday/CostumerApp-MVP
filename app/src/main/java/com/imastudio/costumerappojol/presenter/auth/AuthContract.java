@@ -1,9 +1,10 @@
-package com.imastudio.costumerappojol.auth;
+package com.imastudio.costumerappojol.presenter.auth;
 
 import android.content.DialogInterface;
 
 import com.imastudio.costumerappojol.base.BasePresenter;
 import com.imastudio.costumerappojol.base.BaseView;
+import com.imastudio.costumerappojol.model.modelauth.ResponseAuth;
 
 public interface AuthContract {
 
@@ -16,7 +17,7 @@ public interface AuthContract {
          void hideLoading();
          void showError(String localizedMessage);
          void showMsg(String msg);
-         void pindahHalaman();
+         void pindahHalaman(ResponseAuth dataUser);
 
     }
 }

@@ -17,8 +17,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.imastudio.costumerappojol.MainActivity;
 import com.imastudio.costumerappojol.R;
-import com.imastudio.costumerappojol.auth.AuthContract;
-import com.imastudio.costumerappojol.auth.AuthPresenter;
+import com.imastudio.costumerappojol.presenter.auth.AuthContract;
+import com.imastudio.costumerappojol.presenter.auth.AuthPresenter;
+import com.imastudio.costumerappojol.helper.SessionManager;
+import com.imastudio.costumerappojol.model.modelauth.ResponseAuth;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import butterknife.BindView;
@@ -125,13 +127,13 @@ public class AuthActivity extends AppCompatActivity implements AuthContract.View
                     public void onClick(View v) {
                         String email = holderRegister.edtEmail.getText().toString();
                         String password = holderRegister.edtPassword.getText().toString();
-                        String device= "232323";
+                        String device = "232323";
                         if (TextUtils.isEmpty(email)) {
                             holderRegister.edtEmail.setError(getString(R.string.requireemail));
                         } else if (TextUtils.isEmpty(password)) {
                             holderRegister.edtPassword.setError(getString(R.string.requirepassword));
                         } else {
-                            presenter.prosesLogin(email, password,device, dialogInterface);
+                            presenter.prosesLogin(email, password, device, dialogInterface);
                         }
                     }
                 });
@@ -168,9 +170,16 @@ public class AuthActivity extends AppCompatActivity implements AuthContract.View
     }
 
     @Override
-    public void pindahHalaman() {
-    startActivity(new Intent(AuthActivity.this, MainActivity.class));
-    finish();
+    public void pindahHalaman(ResponseAuth dataUser) {
+        String token = dataUser.getToken();
+        String iduser = dataUser.getIdUser();
+      //save data to session ex token & iduser
+        SessionManager session = new SessionManager(this);
+        session.createLoginSession(token);
+        session.setIduser(iduser);
+
+        startActivity(new Intent(AuthActivity.this, MainActivity.class));
+        finish();
     }
 
     @Override
