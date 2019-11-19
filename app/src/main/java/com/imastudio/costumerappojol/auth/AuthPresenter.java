@@ -3,7 +3,7 @@ package com.imastudio.costumerappojol.auth;
 import android.content.DialogInterface;
 
 import com.imastudio.costumerappojol.base.BaseView;
-import com.imastudio.costumerappojol.model.ResponseAuth;
+import com.imastudio.costumerappojol.model.modelauth.ResponseAuth;
 import com.imastudio.costumerappojol.network.InitRetrofit;
 
 import retrofit2.Call;

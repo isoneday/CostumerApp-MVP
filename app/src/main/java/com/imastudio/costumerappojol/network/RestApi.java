@@ -1,7 +1,7 @@
 package com.imastudio.costumerappojol.network;
 
 
-import com.imastudio.costumerappojol.model.ResponseAuth;
+import com.imastudio.costumerappojol.model.modelauth.ResponseAuth;
 
 import retrofit2.Call;
 import retrofit2.http.Field;

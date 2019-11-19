@@ -1,4 +1,4 @@
-package com.imastudio.costumerappojol.model;
+package com.imastudio.costumerappojol.model.modelauth;
 
 import com.google.gson.annotations.SerializedName;
 
