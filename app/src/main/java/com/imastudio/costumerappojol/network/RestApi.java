@@ -2,7 +2,10 @@ package com.imastudio.costumerappojol.network;
 
 
 import com.imastudio.costumerappojol.model.modelauth.ResponseAuth;
+import com.imastudio.costumerappojol.model.modeldetail.ResponseDetailDriver;
 import com.imastudio.costumerappojol.model.modelmap.ResponseMap;
+import com.imastudio.costumerappojol.model.modelreqorder.ResponseBooking;
+import com.imastudio.costumerappojol.model.modelwaiting.ResponseWaiting;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -36,6 +39,47 @@ public interface RestApi {
             @Query("origin") String origin,
             @Query("destination") String destination,
             @Query("key") String key
+    );
+
+    //endpoint untk insert booking
+    @FormUrlEncoded
+    @POST("insert_booking")
+    Call<ResponseBooking> insertOrderBooking(
+            @Field("f_idUser") String striduser,
+            @Field("f_latAwal") String strlatawal,
+            @Field("f_awal") String strawal,
+            @Field("f_latAkhir") String strlatakhir,
+            @Field("f_lngAkhir") String strlngakhir,
+            @Field("f_akhir") String strakhir,
+            @Field("f_catatan") String strcatatan,
+            @Field("f_jarak") String strjarak,
+            @Field("f_lngAwal") String strlngawal,
+            @Field("f_token") String strtoken,
+            @Field("f_device") String strdevice
+    );
+
+    //endpoint untk check booking
+    @FormUrlEncoded
+    @POST("checkBooking")
+    Call<ResponseWaiting> checkRequestBooking(
+            @Field("idbooking") String stridbooking
+
+    );
+
+    //endpoint untk cancel booking
+    @FormUrlEncoded
+    @POST("cancel_booking")
+    Call<ResponseWaiting> cancelBooking(
+            @Field("idbooking") String stridbooking,
+            @Field("f_token") String strtoken,
+            @Field("f_device") String strdevice
+
+    );
+
+    @FormUrlEncoded
+    @POST("get_driver")
+    Call<ResponseDetailDriver> getDetailDriver(
+            @Field("f_iddriver") String striddriver
     );
 
 }

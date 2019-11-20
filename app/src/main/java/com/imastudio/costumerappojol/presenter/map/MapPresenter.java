@@ -6,6 +6,7 @@ import com.imastudio.costumerappojol.model.modelmap.Duration;
 import com.imastudio.costumerappojol.model.modelmap.LegsItem;
 import com.imastudio.costumerappojol.model.modelmap.ResponseMap;
 import com.imastudio.costumerappojol.model.modelmap.RoutesItem;
+import com.imastudio.costumerappojol.model.modelreqorder.ResponseBooking;
 import com.imastudio.costumerappojol.network.InitRetrofit;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public MapPresenter(MapContract.View view){
 
     @Override
     public void getDataMap(String origin, String destination, String key) {
-        mapView.showLoading();
+        mapView.showLoading("get data map");
         InitRetrofit.getInstanceGoogle().getDataMap(origin, destination, key)
                 .enqueue(new Callback<ResponseMap>() {
                     @Override
@@ -39,7 +40,8 @@ public MapPresenter(MapContract.View view){
                                 Distance distance = legs.get(0).getDistance();
                                 Duration duration = legs.get(0).getDuration();
                                 Double harga = Math.ceil((distance.getValue()/1000)*5000);
-                                mapView.getDataInfoOrder(duration.getText(),distance.getText(),
+                                    String jarak = String.valueOf(distance.getValue()/1000);
+                                mapView.getDataInfoOrder(duration.getText(),jarak,
                                         harga.toString());
                                 String dataGaris = dataMap.get(0).getOverviewPolyline().getPoints();
                                 mapView.dataGaris(dataGaris);
@@ -59,8 +61,35 @@ public MapPresenter(MapContract.View view){
     }
 
     @Override
-    public void requestOrder() {
+    public void requestOrder(String iduser, String latawal, String nameLocation, String latakhir, String lngakhir, String nameDesLocation, String catatan, String jarak, String lngawal, String token, String device) {
+    mapView.showLoading("proses request order");
+    InitRetrofit.getInstance().insertOrderBooking(iduser, latawal, nameLocation, latakhir, lngakhir
+            , nameDesLocation, catatan, jarak, lngawal, token, device).enqueue(
+                new Callback<ResponseBooking>() {
+                    @Override
+                    public void onResponse(Call<ResponseBooking> call, Response<ResponseBooking> response) {
+                    mapView.hideLoading();
+                        if (response.isSuccessful()){
+                            String result =response.body().getResult();
+                            String msg = response.body().getMsg();
+                            if (result.equals("true")){
+                                mapView.showMsg(msg);
+                                int idbooking = response.body().getIdBooking();
+                                int tarif = response.body().getTarif();
+                                mapView.dataBooking(idbooking,tarif);
+                            }else{
+                                mapView.showMsg(msg);
+                            }
+                        }
+                    }
 
+                    @Override
+                    public void onFailure(Call<ResponseBooking> call, Throwable t) {
+                        mapView.hideLoading();
+                        mapView.showError(t.getLocalizedMessage());
+                    }
+                }
+        );
     }
 
     @Override

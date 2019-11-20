@@ -16,7 +16,9 @@ public class MyContants {
     public static final int REQUEST_LOCATION = 1;
     public static final int LOKASIAWAL = 1;
     public static final int LOKASITUJUAN = 2;
+    public static final int READPHONE = 3;
     public static final String IDBOOKING = "id";
+    public static final String TARIF = "tarif";
     public static final String IDDRIVER = "iddriver";
     public static final int LOKASI = 23;
     public static final int LOKASICARI = 25;

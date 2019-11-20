@@ -1,5 +1,6 @@
 package com.imastudio.costumerappojol.view;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.imastudio.costumerappojol.MainActivity;
 import com.imastudio.costumerappojol.R;
 import com.imastudio.costumerappojol.base.BaseActivity;
+import com.imastudio.costumerappojol.helper.HeroHelper;
 import com.imastudio.costumerappojol.helper.SessionManager;
 import com.imastudio.costumerappojol.model.modelauth.ResponseAuth;
 import com.imastudio.costumerappojol.presenter.auth.AuthContract;
@@ -26,6 +28,8 @@ import com.rengwuxian.materialedittext.MaterialEditText;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static com.imastudio.costumerappojol.helper.MyContants.READPHONE;
 
 public class AuthActivity extends BaseActivity implements AuthContract.View {
     @BindView(R.id.txt_rider_app)
@@ -47,6 +51,7 @@ public class AuthActivity extends BaseActivity implements AuthContract.View {
         ButterKnife.bind(this);
         loading = new ProgressDialog(this);
         presenter = new AuthPresenter(this);
+        callPermission(this, Manifest.permission.READ_PHONE_STATE,READPHONE);
     }
 
     @OnClick({R.id.btnSignIn, R.id.btnRegister})
@@ -127,7 +132,7 @@ public class AuthActivity extends BaseActivity implements AuthContract.View {
                     public void onClick(View v) {
                         String email = holderRegister.edtEmail.getText().toString();
                         String password = holderRegister.edtPassword.getText().toString();
-                        String device = "232323";
+                        String device = HeroHelper.getDeviceUUID(AuthActivity.this);
                         if (TextUtils.isEmpty(email)) {
                             holderRegister.edtEmail.setError(getString(R.string.requireemail));
                         } else if (TextUtils.isEmpty(password)) {

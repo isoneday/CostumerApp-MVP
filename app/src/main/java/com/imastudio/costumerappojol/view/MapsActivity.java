@@ -36,6 +36,8 @@ import com.imastudio.costumerappojol.R;
 import com.imastudio.costumerappojol.base.BaseActivity;
 import com.imastudio.costumerappojol.helper.DirectionMapsV2;
 import com.imastudio.costumerappojol.helper.GPSTracker;
+import com.imastudio.costumerappojol.helper.HeroHelper;
+import com.imastudio.costumerappojol.helper.SessionManager;
 import com.imastudio.costumerappojol.presenter.map.MapContract;
 import com.imastudio.costumerappojol.presenter.map.MapPresenter;
 
@@ -47,9 +49,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.imastudio.costumerappojol.helper.MyContants.IDBOOKING;
 import static com.imastudio.costumerappojol.helper.MyContants.LOKASIAWAL;
 import static com.imastudio.costumerappojol.helper.MyContants.LOKASITUJUAN;
 import static com.imastudio.costumerappojol.helper.MyContants.REQUEST_LOCATION;
+import static com.imastudio.costumerappojol.helper.MyContants.TARIF;
 
 public class MapsActivity extends BaseActivity implements OnMapReadyCallback, MapContract.View {
 
@@ -82,6 +86,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Ma
     private String nameDesLocation;
     MapPresenter presenter;
     ProgressDialog loading;
+    private SessionManager session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,6 +190,18 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Ma
                 setLocation(LOKASITUJUAN);
                 break;
             case R.id.requestorder:
+                session = new SessionManager(this);
+                String iduser = session.getIdUser();
+                String latawal = String.valueOf(myLat);
+                String latakhir = String.valueOf(desLat);
+                String lngakhir = String.valueOf(desLng);
+                String catatan = edtcatatan.getText().toString();
+                String jarak =txtjarak.getText().toString();
+                String lngawal = String.valueOf(myLng);
+                String token = session.getToken();
+                String device = HeroHelper.getDeviceUUID(this);
+                presenter.requestOrder(iduser,latawal,nameLocation,latakhir,lngakhir,
+                        nameDesLocation,catatan,jarak,lngawal,token,device);
                 break;
         }
     }
@@ -237,8 +254,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Ma
     }
 
     @Override
-    public void showLoading() {
-        loading.setTitle("Proses get data map");
+    public void showLoading(String pesanloading) {
+        loading.setTitle("Proses"+pesanloading);
         loading.setMessage("loading . .. . ");
         loading.show();
 
@@ -270,8 +287,11 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Ma
     }
 
     @Override
-    public void dataBooking() {
-
+    public void dataBooking(int idbooking, int tarif) {
+        Intent i = new Intent(this,WaitingDriverActivity.class);
+        i.putExtra(IDBOOKING,idbooking);
+        i.putExtra(TARIF,tarif);
+        startActivity(i);
     }
 
     @Override
