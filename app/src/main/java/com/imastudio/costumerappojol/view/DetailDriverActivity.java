@@ -1,13 +1,18 @@
 package com.imastudio.costumerappojol.view;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.fragment.app.FragmentActivity;
+import androidx.annotation.RequiresApi;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -17,6 +22,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.imastudio.costumerappojol.R;
+import com.imastudio.costumerappojol.base.BaseActivity;
+import com.imastudio.costumerappojol.helper.MyContants;
 import com.imastudio.costumerappojol.model.modeldetail.DataDetailDriver;
 import com.imastudio.costumerappojol.presenter.detaildriver.DetailDriverContract;
 import com.imastudio.costumerappojol.presenter.detaildriver.DetailDriverPresenter;
@@ -28,7 +35,7 @@ import butterknife.ButterKnife;
 
 import static com.imastudio.costumerappojol.helper.MyContants.IDDRIVER;
 
-public class DetailDriverActivity extends FragmentActivity implements OnMapReadyCallback, DetailDriverContract.View {
+public class DetailDriverActivity extends BaseActivity implements OnMapReadyCallback, DetailDriverContract.View {
 
     @BindView(R.id.lokasiawal)
     TextView lokasiawal;
@@ -58,6 +65,7 @@ public class DetailDriverActivity extends FragmentActivity implements OnMapReady
         ButterKnife.bind(this);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         loading = new ProgressDialog(this);
+        callPermission(this,Manifest.permission.CALL_PHONE, MyContants.READPHONE);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -65,6 +73,7 @@ public class DetailDriverActivity extends FragmentActivity implements OnMapReady
         intent = getIntent();
         idDriver = intent.getStringExtra(IDDRIVER);
         presenter = new DetailDriverPresenter(this);
+
     }
 
 
@@ -115,6 +124,17 @@ public class DetailDriverActivity extends FragmentActivity implements OnMapReady
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
+        txthpdriver.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View view) {
+                if (checkSelfPermission(Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+
+                    return;
+                }
+                startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + driver.get(0).getUserHp())));
+            }
+        });
     }
 
     @Override
