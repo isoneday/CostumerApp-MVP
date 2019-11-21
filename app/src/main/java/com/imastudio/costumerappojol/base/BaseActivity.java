@@ -28,7 +28,7 @@ import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.imastudio.costumerappojol.helper.MyContants;
 import com.imastudio.costumerappojol.helper.SessionManager;
-import com.imastudio.costumerappojol.view.AuthActivity;
+import com.imastudio.costumerappojol.view.activity.AuthActivity;
 
 public class BaseActivity extends AppCompatActivity {
 

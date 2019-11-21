@@ -1,4 +1,4 @@
-package com.imastudio.costumerappojol.view;
+package com.imastudio.costumerappojol.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;

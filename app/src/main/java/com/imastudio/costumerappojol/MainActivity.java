@@ -10,7 +10,8 @@ import androidx.annotation.NonNull;
 
 import com.imastudio.costumerappojol.base.BaseActivity;
 import com.imastudio.costumerappojol.helper.SessionManager;
-import com.imastudio.costumerappojol.view.MapsActivity;
+import com.imastudio.costumerappojol.view.activity.HistoryActivity;
+import com.imastudio.costumerappojol.view.activity.MapsActivity;
 
 public class MainActivity extends BaseActivity {
 
@@ -28,6 +29,7 @@ public class MainActivity extends BaseActivity {
     }
 
     public void onHistory(View view) {
+        startActivity(new Intent(this, HistoryActivity.class));
     }
 
     @Override

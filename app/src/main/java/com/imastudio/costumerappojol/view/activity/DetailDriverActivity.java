@@ -1,4 +1,4 @@
-package com.imastudio.costumerappojol.view;
+package com.imastudio.costumerappojol.view.activity;
 
 import android.Manifest;
 import android.app.ProgressDialog;

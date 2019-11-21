@@ -3,6 +3,7 @@ package com.imastudio.costumerappojol.network;
 
 import com.imastudio.costumerappojol.model.modelauth.ResponseAuth;
 import com.imastudio.costumerappojol.model.modeldetail.ResponseDetailDriver;
+import com.imastudio.costumerappojol.model.modelhistory.ResponseHistory;
 import com.imastudio.costumerappojol.model.modelmap.ResponseMap;
 import com.imastudio.costumerappojol.model.modelreqorder.ResponseBooking;
 import com.imastudio.costumerappojol.model.modelwaiting.ResponseWaiting;
@@ -80,6 +81,22 @@ public interface RestApi {
     @POST("get_driver")
     Call<ResponseDetailDriver> getDetailDriver(
             @Field("f_iddriver") String striddriver
+    );
+    @FormUrlEncoded
+    @POST("get_booking")
+    Call<ResponseHistory> getDataHistory(
+            @Field("f_idUser") String striduser,
+            @Field("status") String status,
+            @Field("f_token") String f_token,
+            @Field("f_device") String f_device
+    );
+@FormUrlEncoded
+    @POST("complete_booking_from_user")
+    Call<ResponseHistory> completeBooking(
+            @Field("f_idUser") String striduser,
+            @Field("id") String strIdbooking,
+            @Field("f_token") String f_token,
+            @Field("f_device") String f_device
     );
 
 }
